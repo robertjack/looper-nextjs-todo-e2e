@@ -57,7 +57,7 @@ export function TodoItem({
 
   if (isEditing) {
     return (
-      <li className="todo-item">
+      <li className="todo-item is-editing">
         <form className="todo-edit" onSubmit={handleSubmit}>
           <label htmlFor={inputId}>Edit todo</label>
           <div className="entry-row">
@@ -90,21 +90,42 @@ export function TodoItem({
 
   return (
     <li className={`todo-item${todo.completed ? " is-completed" : ""}`}>
-      <span className="todo-title">{todo.title}</span>
+      <div className="todo-content">
+        <span className="todo-title">{todo.title}</span>
+        <span className="todo-status">
+          {todo.completed ? "Completed" : "Active"}
+        </span>
+      </div>
       <div className="todo-actions">
         {todo.completed ? (
-          <button type="button" onClick={() => onRestoreTodo?.(todo.id)}>
+          <button
+            type="button"
+            aria-label={`Restore ${todo.title}`}
+            onClick={() => onRestoreTodo?.(todo.id)}
+          >
             Restore
           </button>
         ) : (
-          <button type="button" onClick={() => onCompleteTodo?.(todo.id)}>
+          <button
+            type="button"
+            aria-label={`Complete ${todo.title}`}
+            onClick={() => onCompleteTodo?.(todo.id)}
+          >
             Complete
           </button>
         )}
-        <button type="button" onClick={beginEditing}>
+        <button
+          type="button"
+          aria-label={`Edit ${todo.title}`}
+          onClick={beginEditing}
+        >
           Edit
         </button>
-        <button type="button" onClick={() => onDeleteTodo?.(todo.id)}>
+        <button
+          type="button"
+          aria-label={`Delete ${todo.title}`}
+          onClick={() => onDeleteTodo?.(todo.id)}
+        >
           Delete
         </button>
       </div>

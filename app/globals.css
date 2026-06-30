@@ -261,6 +261,122 @@ input:focus {
   color: var(--muted);
 }
 
+.todo-items {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.todo-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.todo-item:last-child {
+  border-bottom: 0;
+}
+
+.todo-item.is-completed {
+  background: #f3f8f4;
+}
+
+.todo-item.is-editing {
+  grid-template-columns: 1fr;
+  align-items: stretch;
+}
+
+.todo-content {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.todo-title {
+  font-weight: 800;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.todo-item.is-completed .todo-title {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.todo-status {
+  width: max-content;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 9px;
+  color: var(--primary-dark);
+  background: var(--surface-strong);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.todo-item.is-completed .todo-status {
+  border-color: rgb(61 124 43 / 30%);
+  color: var(--complete);
+  background: rgb(61 124 43 / 10%);
+}
+
+.todo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.todo-actions button,
+.todo-edit button {
+  min-height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 12px;
+  color: var(--text);
+  background: #ffffff;
+  font-weight: 800;
+}
+
+.todo-actions button:hover,
+.todo-edit button:hover {
+  border-color: var(--primary);
+  color: var(--primary-dark);
+  background: var(--surface-strong);
+}
+
+.todo-actions button:first-child,
+.todo-edit button[type="submit"] {
+  border-color: var(--primary);
+  color: #ffffff;
+  background: var(--primary);
+}
+
+.todo-actions button:first-child:hover,
+.todo-edit button[type="submit"]:hover {
+  border-color: var(--primary-dark);
+  color: #ffffff;
+  background: var(--primary-dark);
+}
+
+.todo-edit {
+  display: grid;
+  gap: 10px;
+}
+
+.validation-message {
+  margin: 0;
+  color: #b42318;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
 @media (max-width: 760px) {
   .app-shell {
     width: min(100% - 24px, 560px);
@@ -294,6 +410,20 @@ input:focus {
   .filter-group {
     width: 100%;
     grid-template-columns: 1fr;
+  }
+
+  .todo-item {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .todo-actions {
+    justify-content: flex-start;
+  }
+
+  .todo-actions button,
+  .todo-edit button {
+    flex: 1 1 104px;
   }
 }
 
