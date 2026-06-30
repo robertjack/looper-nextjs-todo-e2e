@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useId, useState } from "react";
+import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 import type { Todo } from "@/lib/todos/types";
 import { validateTodoTitle } from "@/lib/todos/validation";
 
@@ -22,9 +22,19 @@ export function TodoItem({
   const generatedId = useId();
   const inputId = `${generatedId}-edit-todo`;
   const errorId = `${inputId}-error`;
+  const inputRef = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState(todo.title);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isEditing) {
+      return;
+    }
+
+    inputRef.current?.focus();
+    inputRef.current?.select();
+  }, [isEditing]);
 
   function beginEditing() {
     setDraftTitle(todo.title);
@@ -63,11 +73,18 @@ export function TodoItem({
           <div className="entry-row">
             <input
               id={inputId}
+              ref={inputRef}
               name="todo-title"
               type="text"
               value={draftTitle}
               aria-invalid={error ? "true" : undefined}
               aria-describedby={error ? errorId : undefined}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") {
+                  event.preventDefault();
+                  cancelEditing();
+                }
+              }}
               onChange={(event) => {
                 setDraftTitle(event.target.value);
                 setError(null);
