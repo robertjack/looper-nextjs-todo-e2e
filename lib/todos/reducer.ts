@@ -1,4 +1,5 @@
 import { createTodo, type Todo } from "./types";
+import { validateTodoTitle } from "./validation";
 
 export type TodosAction =
   | { type: "hydrate"; todos: Todo[] }
@@ -19,22 +20,36 @@ export function todosReducer(todos: Todo[], action: TodosAction): Todo[] {
     case "hydrate":
       return action.todos;
 
-    case "create":
+    case "create": {
+      const createTitle = validateTodoTitle(action.title);
+
+      if (!createTitle.valid) {
+        return todos;
+      }
+
       return [
         ...todos,
-        createTodo(action.title, {
+        createTodo(createTitle.title, {
           completed: action.completed,
           id: action.id,
           now: action.now,
         }),
       ];
+    }
 
-    case "edit":
+    case "edit": {
+      const editTitle = validateTodoTitle(action.title);
+
+      if (!editTitle.valid) {
+        return todos;
+      }
+
       return updateTodo(todos, action.id, (todo) => ({
         ...todo,
-        title: action.title,
+        title: editTitle.title,
         updatedAt: action.now.toISOString(),
       }));
+    }
 
     case "complete":
       return updateTodo(todos, action.id, (todo) => {
