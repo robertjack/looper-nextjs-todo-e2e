@@ -1,10 +1,15 @@
 "use client";
 
+import {
+  TodoEmptyState,
+  type TodoEmptyStateProps,
+} from "@/components/todo-empty-state";
 import { TodoItem } from "@/components/todo-item";
 import type { Todo } from "@/lib/todos/types";
 
 export type TodoListProps = {
   todos: Todo[];
+  emptyState?: TodoEmptyStateProps;
   onEditTodo: (id: string, title: string) => boolean;
   onCompleteTodo: (id: string) => boolean;
   onRestoreTodo: (id: string) => boolean;
@@ -13,6 +18,7 @@ export type TodoListProps = {
 
 export function TodoList({
   todos,
+  emptyState,
   onEditTodo,
   onCompleteTodo,
   onRestoreTodo,
@@ -28,10 +34,7 @@ export function TodoList({
       </div>
 
       {todos.length === 0 ? (
-        <div className="empty-state">
-          <p>No todos yet</p>
-          <span>Your active todos will appear here.</span>
-        </div>
+        <TodoEmptyState {...(emptyState ?? { kind: "no-todos" })} />
       ) : (
         <ul className="todo-items" aria-label="Todos">
           {todos.map((todo) => (

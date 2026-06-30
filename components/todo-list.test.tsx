@@ -42,5 +42,19 @@ describe("TodoList", () => {
       within(completedItem as HTMLElement).getByText("Completed"),
     ).toBeInTheDocument();
     expect(screen.getByText("2 todos")).toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it("renders the supplied empty state when no todos are visible", () => {
+    render(
+      <TodoList
+        todos={[]}
+        emptyState={{ kind: "no-completed-todos" }}
+        {...handlers}
+      />,
+    );
+
+    expect(screen.getByRole("status")).toHaveTextContent("No completed todos");
+    expect(screen.getByText("0 todos")).toBeInTheDocument();
   });
 });

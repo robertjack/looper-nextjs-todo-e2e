@@ -7,6 +7,15 @@ describe("TodoApp", () => {
     localStorage.clear();
   });
 
+  it("shows the no-todos empty state when the todo list is empty", () => {
+    render(<TodoApp storage={null} />);
+
+    expect(screen.getByRole("status")).toHaveTextContent("No todos yet");
+    expect(
+      screen.getByText("Add a todo to start building today's list."),
+    ).toBeInTheDocument();
+  });
+
   it("adds a valid todo and renders it immediately", () => {
     render(<TodoApp storage={null} />);
 
@@ -21,6 +30,7 @@ describe("TodoApp", () => {
     expect(screen.getByText("1 todo")).toBeInTheDocument();
     expect(within(item as HTMLElement).getByText("Active")).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: /new todo/i })).toHaveValue("");
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
   it("edits a todo title immediately and persists the edit after remount", () => {
@@ -130,6 +140,27 @@ describe("TodoApp", () => {
     expect(screen.getByText("2 todos")).toBeInTheDocument();
   });
 
+  it("shows the no-active-todos empty state when the active filter has no results", () => {
+    render(<TodoApp storage={null} />);
+
+    createTodo("Already done");
+    fireEvent.click(screen.getByRole("button", { name: /complete already done/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Active$/i }));
+
+    expect(screen.getByRole("status")).toHaveTextContent("No active todos");
+    expect(screen.queryByText("Already done")).not.toBeInTheDocument();
+  });
+
+  it("shows the no-completed-todos empty state when the completed filter has no results", () => {
+    render(<TodoApp storage={null} />);
+
+    createTodo("Still open");
+    fireEvent.click(screen.getByRole("button", { name: /^Completed$/i }));
+
+    expect(screen.getByRole("status")).toHaveTextContent("No completed todos");
+    expect(screen.queryByText("Still open")).not.toBeInTheDocument();
+  });
+
   it("searches todos by title case-insensitively and updates immediately", () => {
     render(<TodoApp storage={null} />);
 
@@ -151,6 +182,37 @@ describe("TodoApp", () => {
     expect(screen.getByText("Review PR")).toBeInTheDocument();
     expect(screen.queryByText("Buy milk")).not.toBeInTheDocument();
     expect(screen.getByText("1 todo")).toBeInTheDocument();
+  });
+
+  it("shows the no-search-results empty state when search has no matches", () => {
+    render(<TodoApp storage={null} />);
+
+    createTodo("Buy milk");
+    fireEvent.change(screen.getByRole("searchbox", { name: /search todos/i }), {
+      target: { value: "review" },
+    });
+
+    const emptyState = screen.getByRole("status");
+
+    expect(emptyState).toHaveTextContent("No search results");
+    expect(emptyState).toHaveTextContent('No todos match "review".');
+    expect(screen.queryByText("Buy milk")).not.toBeInTheDocument();
+  });
+
+  it("uses the search empty state for the current status filter", () => {
+    render(<TodoApp storage={null} />);
+
+    createTodo("Ship release");
+    fireEvent.click(screen.getByRole("button", { name: /complete ship release/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Active$/i }));
+    fireEvent.change(screen.getByRole("searchbox", { name: /search todos/i }), {
+      target: { value: "ship" },
+    });
+
+    const emptyState = screen.getByRole("status");
+
+    expect(emptyState).toHaveTextContent("No search results");
+    expect(emptyState).toHaveTextContent('No active todos match "ship".');
   });
 
   it("intersects search text with the active status filter", () => {
