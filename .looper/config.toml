@@ -1,0 +1,37 @@
+[repo]
+# GitHub repository in OWNER/REPO form. Leave blank to infer from gh in a git checkout.
+github = "robertjack/looper-nextjs-todo-e2e"
+local_path = "."
+default_branch = "main"
+worktree_root = "../looper-worktrees"
+
+[agents]
+implementer = "codex"
+reviewers = ["codex", "claude"]
+max_review_attempts = 3
+implementation_timeout_seconds = 1200
+review_timeout_seconds = 900
+heartbeat_interval_seconds = 30
+
+[verify]
+# Commands run inside the issue worktree after implementation and repair.
+commands = ["npm run lint", "npm test", "npm run build"]
+
+[pull_request]
+create = true
+wait_for_ci = false
+auto_merge = false
+merge_method = "squash"
+
+[labels]
+prd = "factory:prd"
+ready = "factory:ready"
+blocked = "factory:blocked"
+claimed = "factory:claimed"
+implementing = "factory:implementing"
+review_failed = "factory:review-failed"
+review_passed = "factory:review-passed"
+pr_open = "factory:pr-open"
+ci_passed = "factory:ci-passed"
+merged = "factory:merged"
+needs_human = "factory:needs-human"
