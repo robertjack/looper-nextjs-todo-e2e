@@ -27,6 +27,16 @@ describe("TodoItem", () => {
     expect(onEditTodo).toHaveBeenCalledWith(todo.id, "Plan tomorrow");
   });
 
+  it("focuses the edit field when editing starts", () => {
+    const onEditTodo = vi.fn(() => true);
+
+    render(<TodoItem todo={todo} onEditTodo={onEditTodo} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /edit/i }));
+
+    expect(screen.getByRole("textbox", { name: /edit todo/i })).toHaveFocus();
+  });
+
   it("rejects empty edited titles with a message near the input", () => {
     const onEditTodo = vi.fn(() => true);
 
@@ -61,5 +71,43 @@ describe("TodoItem", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(
       TODO_TITLE_REQUIRED_MESSAGE,
     );
+  });
+
+  it("cancels editing without saving changed text", () => {
+    const onEditTodo = vi.fn(() => true);
+
+    render(<TodoItem todo={todo} onEditTodo={onEditTodo} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /edit/i }));
+    fireEvent.change(screen.getByRole("textbox", { name: /edit todo/i }), {
+      target: { value: "Plan tomorrow" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
+
+    expect(onEditTodo).not.toHaveBeenCalled();
+    expect(
+      screen.queryByRole("textbox", { name: /edit todo/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(todo.title)).toBeInTheDocument();
+  });
+
+  it("cancels editing with Escape", () => {
+    const onEditTodo = vi.fn(() => true);
+
+    render(<TodoItem todo={todo} onEditTodo={onEditTodo} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /edit/i }));
+    fireEvent.change(screen.getByRole("textbox", { name: /edit todo/i }), {
+      target: { value: "Plan tomorrow" },
+    });
+    fireEvent.keyDown(screen.getByRole("textbox", { name: /edit todo/i }), {
+      key: "Escape",
+    });
+
+    expect(onEditTodo).not.toHaveBeenCalled();
+    expect(
+      screen.queryByRole("textbox", { name: /edit todo/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(todo.title)).toBeInTheDocument();
   });
 });
