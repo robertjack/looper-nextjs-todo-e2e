@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { Todo } from "@/lib/todos/types";
 import { TODO_TITLE_REQUIRED_MESSAGE } from "@/lib/todos/validation";
-import { TodoItem } from "./todo-item";
+import { TodoItem, type TodoItemProps } from "./todo-item";
 
 const todo: Todo = {
   id: "todo-1",
@@ -12,11 +12,62 @@ const todo: Todo = {
   updatedAt: "2026-06-30T12:00:00.000Z",
 };
 
+function renderTodoItem(overrides: Partial<TodoItemProps> = {}) {
+  const props: TodoItemProps = {
+    todo,
+    onEditTodo: vi.fn(() => true),
+    onCompleteTodo: vi.fn(() => true),
+    onRestoreTodo: vi.fn(() => true),
+    onDeleteTodo: vi.fn(() => true),
+    ...overrides,
+  };
+
+  render(<TodoItem {...props} />);
+
+  return props;
+}
+
 describe("TodoItem", () => {
+  it("marks an active todo complete", () => {
+    const onCompleteTodo = vi.fn(() => true);
+
+    renderTodoItem({ onCompleteTodo });
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /complete plan the day/i }),
+    );
+
+    expect(onCompleteTodo).toHaveBeenCalledWith(todo.id);
+  });
+
+  it("restores a completed todo", () => {
+    const onRestoreTodo = vi.fn(() => true);
+
+    renderTodoItem({ todo: { ...todo, completed: true }, onRestoreTodo });
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /restore plan the day/i }),
+    );
+
+    expect(onRestoreTodo).toHaveBeenCalledWith(todo.id);
+  });
+
+  it("deletes a todo", () => {
+    const onDeleteTodo = vi.fn(() => true);
+
+    renderTodoItem({ onDeleteTodo });
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /delete plan the day/i }),
+    );
+
+    expect(onDeleteTodo).toHaveBeenCalledWith(todo.id);
+  });
+
   it("submits trimmed valid edited titles", () => {
     const onEditTodo = vi.fn(() => true);
 
-    render(<TodoItem todo={todo} onEditTodo={onEditTodo} />);
+    renderTodoItem({ onEditTodo });
 
     fireEvent.click(screen.getByRole("button", { name: /edit/i }));
     fireEvent.change(screen.getByRole("textbox", { name: /edit todo/i }), {
@@ -30,7 +81,7 @@ describe("TodoItem", () => {
   it("focuses the edit field when editing starts", () => {
     const onEditTodo = vi.fn(() => true);
 
-    render(<TodoItem todo={todo} onEditTodo={onEditTodo} />);
+    renderTodoItem({ onEditTodo });
 
     fireEvent.click(screen.getByRole("button", { name: /edit/i }));
 
@@ -40,7 +91,7 @@ describe("TodoItem", () => {
   it("rejects empty edited titles with a message near the input", () => {
     const onEditTodo = vi.fn(() => true);
 
-    render(<TodoItem todo={todo} onEditTodo={onEditTodo} />);
+    renderTodoItem({ onEditTodo });
 
     fireEvent.click(screen.getByRole("button", { name: /edit/i }));
     fireEvent.change(screen.getByRole("textbox", { name: /edit todo/i }), {
@@ -59,7 +110,7 @@ describe("TodoItem", () => {
   it("rejects whitespace-only edited titles", () => {
     const onEditTodo = vi.fn(() => true);
 
-    render(<TodoItem todo={todo} onEditTodo={onEditTodo} />);
+    renderTodoItem({ onEditTodo });
 
     fireEvent.click(screen.getByRole("button", { name: /edit/i }));
     fireEvent.change(screen.getByRole("textbox", { name: /edit todo/i }), {
@@ -76,7 +127,7 @@ describe("TodoItem", () => {
   it("cancels editing without saving changed text", () => {
     const onEditTodo = vi.fn(() => true);
 
-    render(<TodoItem todo={todo} onEditTodo={onEditTodo} />);
+    renderTodoItem({ onEditTodo });
 
     fireEvent.click(screen.getByRole("button", { name: /edit/i }));
     fireEvent.change(screen.getByRole("textbox", { name: /edit todo/i }), {
@@ -94,7 +145,7 @@ describe("TodoItem", () => {
   it("cancels editing with Escape", () => {
     const onEditTodo = vi.fn(() => true);
 
-    render(<TodoItem todo={todo} onEditTodo={onEditTodo} />);
+    renderTodoItem({ onEditTodo });
 
     fireEvent.click(screen.getByRole("button", { name: /edit/i }));
     fireEvent.change(screen.getByRole("textbox", { name: /edit todo/i }), {
