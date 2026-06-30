@@ -45,4 +45,60 @@ describe("TodoApp", () => {
     expect(screen.getByText("Plan tomorrow")).toBeInTheDocument();
     expect(screen.queryByText("Plan the day")).not.toBeInTheDocument();
   });
+
+  it("marks an active todo complete and restores it to active", () => {
+    render(<TodoApp storage={null} />);
+
+    fireEvent.change(screen.getByRole("textbox", { name: /new todo/i }), {
+      target: { value: "Plan the day" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /add todo/i }));
+
+    const item = screen.getByText("Plan the day").closest("li");
+
+    fireEvent.click(
+      within(item as HTMLElement).getByRole("button", {
+        name: /complete plan the day/i,
+      }),
+    );
+
+    expect(item).toHaveClass("is-completed");
+    expect(
+      within(item as HTMLElement).getByText("Completed"),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      within(item as HTMLElement).getByRole("button", {
+        name: /restore plan the day/i,
+      }),
+    );
+
+    expect(item).not.toHaveClass("is-completed");
+    expect(within(item as HTMLElement).getByText("Active")).toBeInTheDocument();
+  });
+
+  it("deletes a todo and keeps it deleted after remount", () => {
+    const { unmount } = render(<TodoApp />);
+
+    fireEvent.change(screen.getByRole("textbox", { name: /new todo/i }), {
+      target: { value: "Keep this" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /add todo/i }));
+    fireEvent.change(screen.getByRole("textbox", { name: /new todo/i }), {
+      target: { value: "Delete this" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /add todo/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /delete delete this/i }),
+    );
+
+    expect(screen.getByText("Keep this")).toBeInTheDocument();
+    expect(screen.queryByText("Delete this")).not.toBeInTheDocument();
+
+    unmount();
+    render(<TodoApp />);
+
+    expect(screen.getByText("Keep this")).toBeInTheDocument();
+    expect(screen.queryByText("Delete this")).not.toBeInTheDocument();
+  });
 });

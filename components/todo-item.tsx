@@ -7,9 +7,9 @@ import { validateTodoTitle } from "@/lib/todos/validation";
 export type TodoItemProps = {
   todo: Todo;
   onEditTodo: (id: string, title: string) => boolean;
-  onCompleteTodo?: (id: string) => boolean;
-  onRestoreTodo?: (id: string) => boolean;
-  onDeleteTodo?: (id: string) => boolean;
+  onCompleteTodo: (id: string) => boolean;
+  onRestoreTodo: (id: string) => boolean;
+  onDeleteTodo: (id: string) => boolean;
 };
 
 export function TodoItem({
@@ -118,7 +118,7 @@ export function TodoItem({
           <button
             type="button"
             aria-label={`Restore ${todo.title}`}
-            onClick={() => onRestoreTodo?.(todo.id)}
+            onClick={() => onRestoreTodo(todo.id)}
           >
             Restore
           </button>
@@ -126,7 +126,7 @@ export function TodoItem({
           <button
             type="button"
             aria-label={`Complete ${todo.title}`}
-            onClick={() => onCompleteTodo?.(todo.id)}
+            onClick={() => onCompleteTodo(todo.id)}
           >
             Complete
           </button>
@@ -141,7 +141,7 @@ export function TodoItem({
         <button
           type="button"
           aria-label={`Delete ${todo.title}`}
-          onClick={() => onDeleteTodo?.(todo.id)}
+          onClick={() => onDeleteTodo(todo.id)}
         >
           Delete
         </button>
