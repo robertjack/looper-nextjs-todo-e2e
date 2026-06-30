@@ -1,0 +1,299 @@
+{
+  "issues": [
+    {
+      "acceptance": [
+        "A Next.js App Router TypeScript project is bootstrapped in the repository.",
+        "The root page loads as the todo app primary screen.",
+        "The project exposes npm run lint, npm test, and npm run build scripts that all pass on the baseline app.",
+        "Test tooling is configured with at least one smoke test so npm test succeeds before feature tests exist.",
+        "The app layout is usable on desktop and mobile widths."
+      ],
+      "body": "Bootstrap the repository as a Next.js App Router TypeScript project. Add the primary todo app shell, baseline responsive styling, page metadata, lint/build/test scripts, Vitest or equivalent test tooling, and at least one smoke test so Looper verification passes before feature work begins.",
+      "depends_on": [],
+      "expected_files": [
+        "app/page.tsx",
+        "app/layout.tsx",
+        "app/globals.css",
+        "package.json",
+        "package-lock.json",
+        "tsconfig.json",
+        "next.config.ts",
+        "eslint.config.mjs",
+        "vitest.config.ts",
+        "test/setup.ts",
+        "__tests__/smoke.test.tsx"
+      ],
+      "key": "app-shell",
+      "risk": "low",
+      "test_plan": [
+        "Run npm run lint.",
+        "Run npm test.",
+        "Run npm run build."
+      ],
+      "title": "Create the todo app shell"
+    },
+    {
+      "acceptance": [
+        "Each todo contains id, title, completed, createdAt, and updatedAt fields.",
+        "Todos are loaded from localStorage on the client.",
+        "Todos are saved to localStorage after mutations.",
+        "Storage failures do not crash the UI-facing API."
+      ],
+      "body": "Create a small typed todo domain module and browser-local persistence adapter backed by localStorage. Include unique IDs, title, completion status, created timestamp, updated timestamp, load/save APIs, and graceful handling for unavailable or failing storage.",
+      "depends_on": [
+        "app-shell"
+      ],
+      "expected_files": [
+        "lib/todos/types.ts",
+        "lib/todos/storage.ts",
+        "lib/todos/storage.test.ts"
+      ],
+      "key": "todo-domain-storage",
+      "risk": "medium",
+      "test_plan": [
+        "Add unit tests for loading empty storage, loading saved todos, saving todos, and storage failure handling.",
+        "Run npm test."
+      ],
+      "title": "Implement typed todo storage"
+    },
+    {
+      "acceptance": [
+        "Creating a todo adds it immediately to state.",
+        "Editing a todo updates its title and updated timestamp.",
+        "Completing and restoring toggle completion status correctly.",
+        "Deleting removes the todo permanently from persisted state.",
+        "Todos persist after page refresh."
+      ],
+      "body": "Build the todo state/controller layer that hydrates from storage and provides create, edit, complete, restore, and delete actions with timestamp updates and persistence after every successful mutation.",
+      "depends_on": [
+        "todo-domain-storage"
+      ],
+      "expected_files": [
+        "lib/todos/useTodos.ts",
+        "lib/todos/reducer.ts",
+        "lib/todos/useTodos.test.ts"
+      ],
+      "key": "todo-state",
+      "risk": "medium",
+      "test_plan": [
+        "Add unit tests for create, edit, complete, restore, delete, timestamp changes, and reload persistence.",
+        "Run npm test."
+      ],
+      "title": "Implement todo state actions"
+    },
+    {
+      "acceptance": [
+        "New todo titles are trimmed before saving.",
+        "Empty and whitespace-only new todos are rejected.",
+        "Edited todo titles are trimmed before saving.",
+        "Empty and whitespace-only edited titles are rejected.",
+        "Validation messages are visible near the relevant input."
+      ],
+      "body": "Apply shared title normalization and validation for creating and editing todos. Trim titles before saving and reject empty or whitespace-only values with clear validation messages.",
+      "depends_on": [
+        "todo-state"
+      ],
+      "expected_files": [
+        "lib/todos/validation.ts",
+        "components/todo-form.tsx",
+        "components/todo-item.tsx",
+        "lib/todos/validation.test.ts"
+      ],
+      "key": "todo-validation",
+      "risk": "low",
+      "test_plan": [
+        "Add tests for valid trimmed titles, empty create rejection, whitespace create rejection, empty edit rejection, and whitespace edit rejection.",
+        "Run npm test."
+      ],
+      "title": "Enforce todo title validation"
+    },
+    {
+      "acceptance": [
+        "A user can enter a valid title and add a todo.",
+        "The added todo appears in the list immediately.",
+        "Completed todos are visually distinct from active todos.",
+        "The UI remains readable and usable with multiple todos."
+      ],
+      "body": "Implement the visible todo creation form and list rendering using the todo state layer. Active and completed todos should be visually distinct, and newly added valid todos should appear immediately.",
+      "depends_on": [
+        "todo-validation"
+      ],
+      "expected_files": [
+        "components/todo-app.tsx",
+        "components/todo-form.tsx",
+        "components/todo-list.tsx",
+        "components/todo-item.tsx",
+        "app/page.tsx"
+      ],
+      "key": "add-list-ui",
+      "risk": "medium",
+      "test_plan": [
+        "Add component tests for adding a todo and rendering active versus completed items.",
+        "Run npm test."
+      ],
+      "title": "Build add form and todo list UI"
+    },
+    {
+      "acceptance": [
+        "A user can enter edit mode for a todo.",
+        "Saving a valid edit updates the displayed title immediately.",
+        "The edited title persists after refresh.",
+        "Invalid edited titles show a clear validation message and are not saved.",
+        "A user can cancel editing without changing the todo."
+      ],
+      "body": "Implement an inline or focused edit state for existing todos, including save and cancel behavior, keyboard-friendly controls, validation feedback, and persistence of edited titles.",
+      "depends_on": [
+        "add-list-ui"
+      ],
+      "expected_files": [
+        "components/todo-item.tsx",
+        "components/todo-list.tsx",
+        "lib/todos/useTodos.ts"
+      ],
+      "key": "edit-ui",
+      "risk": "medium",
+      "test_plan": [
+        "Add component tests for editing, edit persistence, invalid edit validation, and cancel behavior.",
+        "Run npm test."
+      ],
+      "title": "Add inline todo editing"
+    },
+    {
+      "acceptance": [
+        "A user can mark an active todo complete.",
+        "A user can restore a completed todo to active.",
+        "A user can delete a todo.",
+        "Deleted todos no longer appear after refresh."
+      ],
+      "body": "Implement controls for marking active todos complete, restoring completed todos to active, and permanently deleting todos.",
+      "depends_on": [
+        "add-list-ui"
+      ],
+      "expected_files": [
+        "components/todo-item.tsx",
+        "components/todo-list.tsx",
+        "lib/todos/useTodos.ts"
+      ],
+      "key": "status-delete-ui",
+      "risk": "low",
+      "test_plan": [
+        "Add component tests for complete, restore, delete, and deleted-after-reload behavior.",
+        "Run npm test."
+      ],
+      "title": "Add complete restore and delete controls"
+    },
+    {
+      "acceptance": [
+        "A user can filter todos by all, active, and completed.",
+        "A user can search todos by title case-insensitively.",
+        "Search and filter combinations return only todos matching both conditions.",
+        "Changing search or filter updates the list immediately."
+      ],
+      "body": "Add case-insensitive title search and all, active, and completed filters. Ensure search and filter state combine as an intersection of matching todos.",
+      "depends_on": [
+        "add-list-ui",
+        "status-delete-ui"
+      ],
+      "expected_files": [
+        "components/todo-filters.tsx",
+        "components/todo-search.tsx",
+        "components/todo-app.tsx",
+        "lib/todos/selectors.ts",
+        "lib/todos/selectors.test.ts"
+      ],
+      "key": "search-filter",
+      "risk": "medium",
+      "test_plan": [
+        "Add component tests for all filter states, case-insensitive search, and search-plus-filter intersections.",
+        "Run npm test."
+      ],
+      "title": "Implement search and status filters"
+    },
+    {
+      "acceptance": [
+        "The app shows a no-todos empty state when the todo list is empty.",
+        "The app shows a no-active-todos empty state when the active filter has no results.",
+        "The app shows a no-completed-todos empty state when the completed filter has no results.",
+        "The app shows a no-search-results empty state when search returns no matches.",
+        "Empty states do not appear when matching todos exist."
+      ],
+      "body": "Implement helpful empty states for no todos, no active todos, no completed todos, and no search results. Empty states should reflect the current filter and search context.",
+      "depends_on": [
+        "search-filter"
+      ],
+      "expected_files": [
+        "components/todo-empty-state.tsx",
+        "components/todo-list.tsx",
+        "components/todo-app.tsx"
+      ],
+      "key": "empty-states",
+      "risk": "low",
+      "test_plan": [
+        "Add component tests for each empty state condition.",
+        "Run npm test."
+      ],
+      "title": "Add contextual empty states"
+    },
+    {
+      "acceptance": [
+        "Core create, edit, complete, restore, delete, search, filter, validation, and empty-state behavior is covered by automated tests.",
+        "Persistence across reloads is covered by automated tests.",
+        "Storage failure handling is covered by automated tests.",
+        "All tests pass locally."
+      ],
+      "body": "Add or complete automated unit and component tests covering create, edit, complete, restore, delete, search, filter, validation, persistence, storage errors, and empty-state behavior.",
+      "depends_on": [
+        "edit-ui",
+        "status-delete-ui",
+        "empty-states"
+      ],
+      "expected_files": [
+        "__tests__/todo-app.test.tsx",
+        "components/todo-app.test.tsx",
+        "components/todo-item.test.tsx",
+        "components/todo-list.test.tsx",
+        "components/todo-empty-state.test.tsx",
+        "lib/todos/storage.test.ts",
+        "lib/todos/useTodos.test.ts",
+        "lib/todos/selectors.test.ts",
+        "lib/todos/validation.test.ts",
+        "vitest.config.ts",
+        "test/setup.ts"
+      ],
+      "key": "workflow-tests",
+      "risk": "medium",
+      "test_plan": [
+        "Run npm test.",
+        "Run npm run lint.",
+        "Run npm run build."
+      ],
+      "title": "Cover core workflows with automated tests"
+    },
+    {
+      "acceptance": [
+        "npm run build succeeds without local-only assumptions.",
+        "The deployed preview exposes the complete working todo app.",
+        "Preview data is browser-local and not shared between users.",
+        "No authentication, database, or secret configuration is required."
+      ],
+      "body": "Ensure the app can be deployed to a public preview environment with production build settings and no required private credentials. Document the preview deployment path or configure the target platform used by Looper.",
+      "depends_on": [
+        "workflow-tests"
+      ],
+      "expected_files": [
+        "README.md",
+        "vercel.json",
+        "next.config.ts",
+        "package.json"
+      ],
+      "key": "preview-deploy",
+      "risk": "medium",
+      "test_plan": [
+        "Run npm run build.",
+        "Deploy to the preview environment.",
+        "Open the preview URL and verify add, refresh persistence, filter, search, edit, complete, restore, and delete manually."
+      ],
+      "title": "Prepare public preview deployment"
+    }
+  ]
+}
