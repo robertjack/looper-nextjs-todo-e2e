@@ -5,6 +5,7 @@ import { TodoFilters } from "@/components/todo-filters";
 import { TodoForm } from "@/components/todo-form";
 import { TodoList } from "@/components/todo-list";
 import { TodoSearch } from "@/components/todo-search";
+import type { TodoEmptyStateProps } from "@/components/todo-empty-state";
 import {
   selectVisibleTodos,
   type TodoStatusFilter,
@@ -37,6 +38,12 @@ export function TodoApp({ storage }: TodoAppProps) {
     () => selectVisibleTodos(todos, { status: statusFilter, search }),
     [search, statusFilter, todos],
   );
+  const emptyState = getEmptyState({
+    hasTodos: todos.length > 0,
+    hasVisibleTodos: visibleTodos.length > 0,
+    search,
+    statusFilter,
+  });
 
   return (
     <main className="app-shell">
@@ -68,6 +75,7 @@ export function TodoApp({ storage }: TodoAppProps) {
         </section>
         <TodoList
           todos={visibleTodos}
+          emptyState={emptyState}
           onEditTodo={editTodo}
           onCompleteTodo={completeTodo}
           onRestoreTodo={restoreTodo}
@@ -76,6 +84,40 @@ export function TodoApp({ storage }: TodoAppProps) {
       </section>
     </main>
   );
+}
+
+function getEmptyState({
+  hasTodos,
+  hasVisibleTodos,
+  search,
+  statusFilter,
+}: {
+  hasTodos: boolean;
+  hasVisibleTodos: boolean;
+  search: string;
+  statusFilter: TodoStatusFilter;
+}): TodoEmptyStateProps | undefined {
+  if (hasVisibleTodos) {
+    return undefined;
+  }
+
+  if (!hasTodos) {
+    return { kind: "no-todos" };
+  }
+
+  if (search.trim()) {
+    return { kind: "no-search-results", search, status: statusFilter };
+  }
+
+  if (statusFilter === "active") {
+    return { kind: "no-active-todos" };
+  }
+
+  if (statusFilter === "completed") {
+    return { kind: "no-completed-todos" };
+  }
+
+  return undefined;
 }
 
 export default TodoApp;
